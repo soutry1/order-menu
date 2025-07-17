@@ -1,325 +1,329 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>点菜系统</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding-bottom: 90px;
-      background: #f9f9f9;
-    }
-    header {
-      background-color: #ff6600;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-size: 20px;
-    }
-    .menu {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      padding: 10px;
-    }
-    .dish {
-      background: white;
-      width: 45%;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      position: relative;
-      text-align: center;
-    }
-    .dish img {
-      width: 100%;
-      height: auto;
-    }
-    .dish h3, .dish p {
-      margin: 8px 0;
-    }
-    .dish button {
-      margin: 10px auto;
-      width: 90%;
-      padding: 10px;
-      border: none;
-      background-color: #28a745;
-      color: white;
-      font-weight: bold;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>点菜系统</title>
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding-bottom: 90px;
+    background: #f9f9f9;
+  }
+  header {
+    background-color: #ff6600;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 20px;
+  }
+  .menu {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 10px;
+  }
+  .dish {
+    background: white;
+    width: 45%;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: relative;
+    text-align: center;
+  }
+  .dish img {
+    width: 100%;
+    height: auto;
+  }
+  .dish h3, .dish p {
+    margin: 8px 0;
+  }
+  .dish button {
+    margin: 10px auto;
+    width: 90%;
+    padding: 10px;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-    .badge {
-      position: absolute;
-      top: 8px;
-      left: 8px;
-      background-color: red;
-      color: white;
-      border-radius: 50%;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: bold;
-      display: none;
-    }
+  .badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+  }
 
-    .order-summary {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 15px;
-      z-index: 100;
-      cursor: pointer;
-    }
+  .order-summary {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    z-index: 100;
+    box-sizing: border-box;
+  }
 
-    .order-summary .info {
-      font-size: 16px;
-      user-select: none;
-    }
+  .order-summary button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+  }
 
-    .order-summary button {
-      padding: 10px 15px;
-      border: none;
-      background-color: #007bff;
-      color: white;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-    }
+  .order-summary .info {
+    font-size: 16px;
+    cursor: pointer;
+    user-select: none;
+    flex-grow: 1;
+    text-align: right;
+    padding-left: 20px;
+  }
 
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 200;
-    }
-    .modal-content {
-      background: white;
-      width: 80%;
-      max-height: 80%;
-      overflow-y: auto;
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .modal-content h3 {
-      margin-top: 0;
-    }
-    .modal-content ul {
-      padding-left: 0;
-      list-style: none;
-    }
-    .modal-content li {
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .modal-content button {
-      padding: 4px 8px;
-      margin-left: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: bold;
-      background-color: #ddd;
-      transition: background-color 0.2s;
-    }
-    .modal-content button:hover {
-      background-color: #bbb;
-    }
-    .close-btn {
-      margin-top: 10px;
-      background: #ccc;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      user-select: none;
-    }
-  </style>
+  .modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+  }
+  .modal-content {
+    background: white;
+    width: 80%;
+    max-height: 80%;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .modal-content h3 {
+    margin-top: 0;
+  }
+  .modal-content ul {
+    padding-left: 0;
+    list-style: none;
+  }
+  .modal-content li {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-content button {
+    padding: 4px 8px;
+    margin-left: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #ddd;
+    transition: background-color 0.2s;
+  }
+  .modal-content button:hover {
+    background-color: #bbb;
+  }
+  .close-btn {
+    margin-top: 10px;
+    background: #ccc;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+  }
+</style>
 </head>
 <body>
-  <header>手机点菜系统</header>
+<header>手机点菜系统</header>
 
-  <section class="menu" id="menu">
-    <!-- 菜品将在这里通过JS生成 -->
-  </section>
+<section class="menu" id="menu">
+  <!-- 菜品将在这里通过JS生成 -->
+</section>
 
-  <div class="order-summary">
-    <div class="info" onclick="showCart()">已点 <span id="item-types">0</span> 样 / <span id="item-count">0</span> 份 / ￥<span id="item-total">0</span></div>
-    <button onclick="submitOrder(event)">提交订单</button>
+<div class="order-summary">
+  <button onclick="submitOrder(event)">提交订单</button>
+  <div class="info" onclick="showCart()">已点 <span id="item-types">0</span> 样 / <span id="item-count">0</span> 份 / ￥<span id="item-total">0</span></div>
+</div>
+
+<div class="modal" id="cart-modal">
+  <div class="modal-content">
+    <h3>您的点单</h3>
+    <ul id="cart-list"></ul>
+    <button class="close-btn" onclick="hideCart()">关闭</button>
   </div>
+</div>
 
-  <div class="modal" id="cart-modal">
-    <div class="modal-content">
-      <h3>您的点单</h3>
-      <ul id="cart-list"></ul>
-      <button class="close-btn" onclick="hideCart()">关闭</button>
-    </div>
-  </div>
+<script>
+  const menuData = [
+    { id: 1, name: "宫保鸡丁", price: 50 },
+    { id: 2, name: "鱼香肉丝", price: 45 },
+    { id: 3, name: "麻婆豆腐", price: 40 },
+    { id: 4, name: "红烧肉", price: 60 },
+    { id: 5, name: "回锅肉", price: 48 },
+    { id: 6, name: "西红柿炒蛋", price: 28 },
+    { id: 7, name: "蒜蓉空心菜", price: 20 },
+    { id: 8, name: "干锅花菜", price: 38 },
+    { id: 9, name: "香煎豆腐", price: 32 },
+    { id: 10, name: "酸辣土豆丝", price: 25 },
+    { id: 11, name: "椒盐排骨", price: 55 },
+    { id: 12, name: "糖醋里脊", price: 58 }
+  ];
 
-  <script>
-    const menuData = [
-      { id: 1, name: "宫保鸡丁", price: 50 },
-      { id: 2, name: "鱼香肉丝", price: 45 },
-      { id: 3, name: "麻婆豆腐", price: 40 },
-      { id: 4, name: "红烧肉", price: 60 },
-      { id: 5, name: "回锅肉", price: 48 },
-      { id: 6, name: "西红柿炒蛋", price: 28 },
-      { id: 7, name: "蒜蓉空心菜", price: 20 },
-      { id: 8, name: "干锅花菜", price: 38 },
-      { id: 9, name: "香煎豆腐", price: 32 },
-      { id: 10, name: "酸辣土豆丝", price: 25 },
-      { id: 11, name: "椒盐排骨", price: 55 },
-      { id: 12, name: "糖醋里脊", price: 58 }
-    ];
+  const order = [];
 
-    const order = [];
+  function renderMenu() {
+    const menu = document.getElementById("menu");
+    menuData.forEach((item, index) => {
+      const dish = document.createElement("div");
+      dish.className = "dish";
+      dish.dataset.id = item.id;
+      dish.dataset.name = item.name;
+      dish.dataset.price = item.price;
+      dish.innerHTML = `
+        <span class="badge" id="badge-${item.id}">0</span>
+        <img src="https://via.placeholder.com/300x200?text=${index + 1}" alt="${item.name}">
+        <h3>${item.name}</h3>
+        <p>￥${item.price}</p>
+        <button onclick="addDish(this)">点单</button>
+      `;
+      menu.appendChild(dish);
+    });
+  }
 
-    function renderMenu() {
-      const menu = document.getElementById("menu");
-      menuData.forEach((item, index) => {
-        const dish = document.createElement("div");
-        dish.className = "dish";
-        dish.dataset.id = item.id;
-        dish.dataset.name = item.name;
-        dish.dataset.price = item.price;
-        dish.innerHTML = `
-          <span class="badge" id="badge-${item.id}">0</span>
-          <img src="https://via.placeholder.com/300x200?text=${index + 1}" alt="${item.name}">
-          <h3>${item.name}</h3>
-          <p>￥${item.price}</p>
-          <button onclick="addDish(this)">点单</button>
-        `;
-        menu.appendChild(dish);
-      });
+  function addDish(btn) {
+    const card = btn.parentElement;
+    const id = card.dataset.id;
+    const name = card.dataset.name;
+    const price = parseFloat(card.dataset.price);
+
+    let item = order.find(i => i.id === id);
+    if (item) {
+      item.quantity += 1;
+    } else {
+      order.push({ id, name, price, quantity: 1 });
     }
 
-    function addDish(btn) {
-      const card = btn.parentElement;
-      const id = card.dataset.id;
-      const name = card.dataset.name;
-      const price = parseFloat(card.dataset.price);
+    const badge = document.getElementById('badge-' + id);
+    badge.innerText = order.find(i => i.id === id).quantity;
+    badge.style.display = 'inline-block';
 
-      let item = order.find(i => i.id === id);
-      if (item) {
-        item.quantity += 1;
-      } else {
-        order.push({ id, name, price, quantity: 1 });
-      }
+    updateSummary();
+  }
 
-      const badge = document.getElementById('badge-' + id);
-      badge.innerText = order.find(i => i.id === id).quantity;
-      badge.style.display = 'inline-block';
+  function updateSummary() {
+    const count = order.reduce((sum, i) => sum + i.quantity, 0);
+    const types = order.length;
+    const total = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-      updateSummary();
-    }
+    document.getElementById("item-count").innerText = count;
+    document.getElementById("item-types").innerText = types;
+    document.getElementById("item-total").innerText = total.toFixed(2);
+  }
 
-    function updateSummary() {
-      const count = order.reduce((sum, i) => sum + i.quantity, 0);
-      const types = order.length;
-      const total = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  function showCart() {
+    const modal = document.getElementById("cart-modal");
+    const list = document.getElementById("cart-list");
+    list.innerHTML = "";
 
-      document.getElementById("item-count").innerText = count;
-      document.getElementById("item-types").innerText = types;
-      document.getElementById("item-total").innerText = total.toFixed(2);
-    }
-
-    function showCart() {
-      const modal = document.getElementById("cart-modal");
-      const list = document.getElementById("cart-list");
-      list.innerHTML = "";
-
-      if (order.length === 0) {
-        list.innerHTML = "<li>您还没有选择任何菜品。</li>";
-      } else {
-        order.forEach(item => {
-          const li = document.createElement("li");
-          li.style.display = "flex";
-          li.style.justifyContent = "space-between";
-          li.style.alignItems = "center";
-          li.style.marginBottom = "8px";
-
-          li.innerHTML = `
-            <span>${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}</span>
-            <span>
-              <button onclick="changeQuantity('${item.id}', -1)">-</button>
-              <button onclick="changeQuantity('${item.id}', 1)">+</button>
-            </span>
-          `;
-
-          list.appendChild(li);
-        });
-      }
-
-      modal.style.display = "flex";
-    }
-
-    function hideCart() {
-      document.getElementById("cart-modal").style.display = "none";
-    }
-
-    function changeQuantity(id, delta) {
-      const item = order.find(i => i.id === id);
-      if (!item) return;
-
-      item.quantity += delta;
-      if (item.quantity <= 0) {
-        const index = order.findIndex(i => i.id === id);
-        if (index > -1) {
-          order.splice(index, 1);
-        }
-        const badge = document.getElementById('badge-' + id);
-        badge.style.display = "none";
-        badge.innerText = "0";
-      } else {
-        const badge = document.getElementById('badge-' + id);
-        badge.innerText = item.quantity;
-      }
-
-      updateSummary();
-      showCart();
-    }
-
-    function submitOrder(e) {
-      e.stopPropagation(); // 防止触发order-summary点击事件打开购物车
-
-      if (order.length === 0) {
-        alert("您还没有选择菜品！");
-        return;
-      }
-      let msg = "您点的菜：\n";
+    if (order.length === 0) {
+      list.innerHTML = "<li>您还没有选择任何菜品。</li>";
+    } else {
       order.forEach(item => {
-        msg += `${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}\n`;
-      });
-      msg += `\n总价：￥${order.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2)}`;
-      alert(msg);
+        const li = document.createElement("li");
+        li.style.display = "flex";
+        li.style.justifyContent = "space-between";
+        li.style.alignItems = "center";
+        li.style.marginBottom = "8px";
 
-      order.length = 0;
-      document.querySelectorAll(".badge").forEach(b => {
-        b.innerText = "0";
-        b.style.display = "none";
+        li.innerHTML = `
+          <span>${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}</span>
+          <span>
+            <button onclick="changeQuantity('${item.id}', -1)">-</button>
+            <button onclick="changeQuantity('${item.id}', 1)">+</button>
+          </span>
+        `;
+
+        list.appendChild(li);
       });
-      updateSummary();
-      hideCart();
     }
 
-    // 初始化菜单
-    renderMenu();
-  </script>
+    modal.style.display = "flex";
+  }
+
+  function hideCart() {
+    document.getElementById("cart-modal").style.display = "none";
+  }
+
+  function changeQuantity(id, delta) {
+    const item = order.find(i => i.id === id);
+    if (!item) return;
+
+    item.quantity += delta;
+    if (item.quantity <= 0) {
+      const index = order.findIndex(i => i.id === id);
+      if (index > -1) {
+        order.splice(index, 1);
+      }
+      const badge = document.getElementById('badge-' + id);
+      badge.style.display = "none";
+      badge.innerText = "0";
+    } else {
+      const badge = document.getElementById('badge-' + id);
+      badge.innerText = item.quantity;
+    }
+
+    updateSummary();
+    showCart();
+  }
+
+  function submitOrder(e) {
+    e.stopPropagation();
+
+    if (order.length === 0) {
+      alert("您还没有选择菜品！");
+      return;
+    }
+    let msg = "您点的菜：\n";
+    order.forEach(item => {
+      msg += `${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}\n`;
+    });
+    msg += `\n总价：￥${order.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2)}`;
+    alert(msg);
+
+    order.length = 0;
+    document.querySelectorAll(".badge").forEach(b => {
+      b.innerText = "0";
+      b.style.display = "none";
+    });
+    updateSummary();
+    hideCart();
+  }
+
+  renderMenu();
+</script>
 </body>
 </html>
