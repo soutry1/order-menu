@@ -26,7 +26,7 @@
   }
   .dish {
     background: white;
-    width: 45%;
+    width: 320px; /* 宽度稍微比图片大一点，方便边距 */
     margin-bottom: 15px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -34,8 +34,13 @@
     position: relative;
   }
   .dish img {
-    width: 100%;
-    height: auto;
+    width: 300px;
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    display: block;
+    margin: 0 auto;
   }
   .dish h3, .dish p {
     margin: 8px 0;
@@ -269,7 +274,7 @@
       dishDiv.dataset.price = item.price;
       dishDiv.innerHTML = `
         <span class="badge" id="badge-${item.id}">0</span>
-        <img src="${item.id}.jpg" alt="${item.name}">
+        <img src="images/${item.id}.jpg" alt="${item.name}">
         <h3>${item.name}</h3>
         <p>￥${item.price}</p>
         <button onclick="addDish(${item.id})">点单</button>
