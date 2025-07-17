@@ -2,8 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>点菜系统</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>点菜系统 - 底部弹窗订单</title>
 <style>
   body {
     font-family: sans-serif;
@@ -29,10 +29,9 @@
     width: 45%;
     margin-bottom: 15px;
     border-radius: 10px;
-    overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: relative;
     text-align: center;
+    position: relative;
   }
   .dish img {
     width: 100%;
@@ -52,7 +51,6 @@
     border-radius: 5px;
     cursor: pointer;
   }
-
   .badge {
     position: absolute;
     top: 8px;
@@ -66,116 +64,167 @@
     display: none;
   }
 
+  /* 底部固定栏 */
   .order-summary {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    bottom: 0; left: 0; width: 100%;
     background: white;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
-    z-index: 100;
     box-sizing: border-box;
+    z-index: 100;
   }
-
   .order-summary button {
-    padding: 10px 20px;
-    border: none;
     background-color: #007bff;
     color: white;
-    border-radius: 5px;
     font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
     cursor: pointer;
     user-select: none;
     flex-shrink: 0;
   }
-
   .order-summary .info {
     font-size: 16px;
-    cursor: pointer;
     user-select: none;
-    flex-grow: 1;
     text-align: right;
+    flex-grow: 1;
     padding-left: 20px;
+    cursor: pointer;
   }
 
-  .modal {
+  /* 底部弹窗订单 */
+  .order-drawer {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 200;
-  }
-  .modal-content {
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    max-height: 60%;
     background: white;
-    width: 80%;
-    max-height: 80%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.3);
     overflow-y: auto;
-    border-radius: 10px;
-    padding: 20px;
+    transition: bottom 0.3s ease;
+    z-index: 200;
+    padding: 15px 20px 30px;
   }
-  .modal-content h3 {
-    margin-top: 0;
+  .order-drawer.active {
+    bottom: 0;
   }
-  .modal-content ul {
-    padding-left: 0;
+  .order-drawer h3 {
+    margin: 0 0 15px 0;
+    font-size: 22px;
+    text-align: center;
+  }
+  .order-list {
     list-style: none;
+    padding: 0;
+    margin: 0 0 20px 0;
   }
-  .modal-content li {
-    margin-bottom: 8px;
+  .order-list li {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 12px;
+    font-size: 16px;
   }
-  .modal-content button {
-    padding: 4px 8px;
-    margin-left: 5px;
+  .order-list .name {
+    flex: 1;
+  }
+  .order-list .qty-controls {
+    display: flex;
+    align-items: center;
+    margin: 0 15px;
+  }
+  .order-list button.qty-btn {
+    width: 28px;
+    height: 28px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background: #ddd;
     font-weight: bold;
-    background-color: #ddd;
-    transition: background-color 0.2s;
-  }
-  .modal-content button:hover {
-    background-color: #bbb;
-  }
-  .close-btn {
-    margin-top: 10px;
-    background: #ccc;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
+    font-size: 18px;
+    border-radius: 4px;
     cursor: pointer;
     user-select: none;
+    line-height: 1;
+    text-align: center;
+    margin: 0 5px;
+    transition: background-color 0.2s;
+  }
+  .order-list button.qty-btn:hover {
+    background: #bbb;
+  }
+  .order-list .qty {
+    min-width: 24px;
+    text-align: center;
+  }
+  .order-list .price {
+    min-width: 70px;
+    text-align: right;
+  }
+  .order-total {
+    text-align: right;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .close-drawer {
+    display: block;
+    width: 100%;
+    background: #ccc;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+  }
+  .close-drawer:hover {
+    background: #bbb;
+  }
+
+  /* 遮罩层 */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 199;
+  }
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
   }
 </style>
 </head>
 <body>
 <header>手机点菜系统</header>
 
-<section class="menu" id="menu">
-  <!-- 菜品将在这里通过JS生成 -->
-</section>
+<section class="menu" id="menu"></section>
 
 <div class="order-summary">
-  <button onclick="submitOrder(event)">提交订单</button>
-  <div class="info" onclick="showCart()">已点 <span id="item-types">0</span> 样 / <span id="item-count">0</span> 份 / ￥<span id="item-total">0</span></div>
+  <button id="submit-order-btn">提交订单</button>
+  <div class="info" id="order-info">已点 0 样 / 0 份 / ￥0.00</div>
 </div>
 
-<div class="modal" id="cart-modal">
-  <div class="modal-content">
-    <h3>您的点单</h3>
-    <ul id="cart-list"></ul>
-    <button class="close-btn" onclick="hideCart()">关闭</button>
-  </div>
+<!-- 底部弹窗 -->
+<div class="order-drawer" id="order-drawer">
+  <h3>订单详情</h3>
+  <ul class="order-list" id="order-list"></ul>
+  <div class="order-total" id="order-total">总价：￥0.00</div>
+  <button class="close-drawer" id="close-drawer-btn">关闭</button>
 </div>
+
+<!-- 遮罩层 -->
+<div class="overlay" id="overlay"></div>
 
 <script>
   const menuData = [
@@ -195,135 +244,151 @@
 
   const order = [];
 
+  const menuEl = document.getElementById('menu');
+  const orderInfoEl = document.getElementById('order-info');
+  const orderDrawer = document.getElementById('order-drawer');
+  const orderListEl = document.getElementById('order-list');
+  const orderTotalEl = document.getElementById('order-total');
+  const overlay = document.getElementById('overlay');
+  const submitOrderBtn = document.getElementById('submit-order-btn');
+  const closeDrawerBtn = document.getElementById('close-drawer-btn');
+
   function renderMenu() {
-    const menu = document.getElementById("menu");
-    menuData.forEach((item, index) => {
-      const dish = document.createElement("div");
-      dish.className = "dish";
-      dish.dataset.id = item.id;
-      dish.dataset.name = item.name;
-      dish.dataset.price = item.price;
-      dish.innerHTML = `
+    menuData.forEach((item, idx) => {
+      const dishDiv = document.createElement('div');
+      dishDiv.className = 'dish';
+      dishDiv.dataset.id = item.id;
+      dishDiv.dataset.name = item.name;
+      dishDiv.dataset.price = item.price;
+      dishDiv.innerHTML = `
         <span class="badge" id="badge-${item.id}">0</span>
-        <img src="https://via.placeholder.com/300x200?text=${index + 1}" alt="${item.name}">
+        <img src="https://via.placeholder.com/300x200?text=${idx + 1}" alt="${item.name}">
         <h3>${item.name}</h3>
         <p>￥${item.price}</p>
-        <button onclick="addDish(this)">点单</button>
+        <button onclick="addDish(${item.id})">点单</button>
       `;
-      menu.appendChild(dish);
+      menuEl.appendChild(dishDiv);
     });
   }
 
-  function addDish(btn) {
-    const card = btn.parentElement;
-    const id = card.dataset.id;
-    const name = card.dataset.name;
-    const price = parseFloat(card.dataset.price);
-
+  function addDish(id) {
     let item = order.find(i => i.id === id);
-    if (item) {
-      item.quantity += 1;
+    if(item) {
+      item.quantity++;
     } else {
-      order.push({ id, name, price, quantity: 1 });
+      const menuItem = menuData.find(m => m.id === id);
+      order.push({ id: menuItem.id, name: menuItem.name, price: menuItem.price, quantity: 1 });
     }
-
-    const badge = document.getElementById('badge-' + id);
-    badge.innerText = order.find(i => i.id === id).quantity;
-    badge.style.display = 'inline-block';
-
-    updateSummary();
+    updateBadge(id);
+    updateOrderInfo();
   }
 
-  function updateSummary() {
-    const count = order.reduce((sum, i) => sum + i.quantity, 0);
-    const types = order.length;
-    const total = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-    document.getElementById("item-count").innerText = count;
-    document.getElementById("item-types").innerText = types;
-    document.getElementById("item-total").innerText = total.toFixed(2);
-  }
-
-  function showCart() {
-    const modal = document.getElementById("cart-modal");
-    const list = document.getElementById("cart-list");
-    list.innerHTML = "";
-
-    if (order.length === 0) {
-      list.innerHTML = "<li>您还没有选择任何菜品。</li>";
+  function updateBadge(id) {
+    const badge = document.getElementById(`badge-${id}`);
+    const item = order.find(i => i.id === id);
+    if(item && item.quantity > 0) {
+      badge.innerText = item.quantity;
+      badge.style.display = 'inline-block';
     } else {
-      order.forEach(item => {
-        const li = document.createElement("li");
-        li.style.display = "flex";
-        li.style.justifyContent = "space-between";
-        li.style.alignItems = "center";
-        li.style.marginBottom = "8px";
-
-        li.innerHTML = `
-          <span>${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}</span>
-          <span>
-            <button onclick="changeQuantity('${item.id}', -1)">-</button>
-            <button onclick="changeQuantity('${item.id}', 1)">+</button>
-          </span>
-        `;
-
-        list.appendChild(li);
-      });
+      badge.style.display = 'none';
+      badge.innerText = '0';
     }
-
-    modal.style.display = "flex";
   }
 
-  function hideCart() {
-    document.getElementById("cart-modal").style.display = "none";
+  function updateOrderInfo() {
+    const totalCount = order.reduce((sum, i) => sum + i.quantity, 0);
+    const typesCount = order.length;
+    const totalPrice = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    orderInfoEl.innerText = `已点 ${typesCount} 样 / ${totalCount} 份 / ￥${totalPrice.toFixed(2)}`;
+  }
+
+  function openOrderDrawer() {
+    if(order.length === 0) {
+      alert('您还没有点菜！');
+      return;
+    }
+    renderOrderList();
+    orderDrawer.classList.add('active');
+    overlay.classList.add('active');
+  }
+
+  function closeOrderDrawer() {
+    orderDrawer.classList.remove('active');
+    overlay.classList.remove('active');
+  }
+
+  function renderOrderList() {
+    orderListEl.innerHTML = '';
+    order.forEach(item => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="name">${item.name}</div>
+        <div class="qty-controls">
+          <button class="qty-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+          <div class="qty">${item.quantity}</div>
+          <button class="qty-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+        </div>
+        <div class="price">￥${(item.price * item.quantity).toFixed(2)}</div>
+      `;
+      orderListEl.appendChild(li);
+    });
+    const totalPrice = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    orderTotalEl.innerText = `总价：￥${totalPrice.toFixed(2)}`;
   }
 
   function changeQuantity(id, delta) {
     const item = order.find(i => i.id === id);
-    if (!item) return;
+    if(!item) return;
 
     item.quantity += delta;
-    if (item.quantity <= 0) {
-      const index = order.findIndex(i => i.id === id);
-      if (index > -1) {
-        order.splice(index, 1);
-      }
-      const badge = document.getElementById('badge-' + id);
-      badge.style.display = "none";
-      badge.innerText = "0";
+    if(item.quantity <= 0) {
+      const idx = order.findIndex(i => i.id === id);
+      order.splice(idx, 1);
+      updateBadge(id);
     } else {
-      const badge = document.getElementById('badge-' + id);
-      badge.innerText = item.quantity;
+      updateBadge(id);
     }
 
-    updateSummary();
-    showCart();
+    updateOrderInfo();
+    renderOrderList();
+
+    if(order.length === 0) {
+      closeOrderDrawer();
+    }
   }
 
-  function submitOrder(e) {
-    e.stopPropagation();
-
-    if (order.length === 0) {
-      alert("您还没有选择菜品！");
+  function submitOrder() {
+    if(order.length === 0) {
+      alert('您还没有点菜！');
       return;
     }
-    let msg = "您点的菜：\n";
+    let msg = '您点的菜：\n';
     order.forEach(item => {
-      msg += `${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}\n`;
+      msg += `${item.name} x${item.quantity} = ￥${(item.price * item.quantity).toFixed(2)}\n`;
     });
-    msg += `\n总价：￥${order.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2)}`;
+    const totalPrice = order.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    msg += `\n总价：￥${totalPrice.toFixed(2)}`;
     alert(msg);
 
+    // 清空订单
     order.length = 0;
-    document.querySelectorAll(".badge").forEach(b => {
-      b.innerText = "0";
-      b.style.display = "none";
-    });
-    updateSummary();
-    hideCart();
+    menuData.forEach(item => updateBadge(item.id));
+    updateOrderInfo();
+    closeOrderDrawer();
   }
 
+  // 事件绑定
+  submitOrderBtn.onclick = submitOrder;
+  orderInfoEl.onclick = openOrderDrawer;
+  closeDrawerBtn.onclick = closeOrderDrawer;
+  overlay.onclick = closeOrderDrawer;
+
   renderMenu();
+  updateOrderInfo();
+
+  // 全局暴露，方便html按钮调用
+  window.addDish = addDish;
+  window.changeQuantity = changeQuantity;
 </script>
 </body>
 </html>
