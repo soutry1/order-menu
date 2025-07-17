@@ -78,10 +78,12 @@
       align-items: center;
       padding: 10px 15px;
       z-index: 100;
+      cursor: pointer;
     }
 
     .order-summary .info {
       font-size: 16px;
+      user-select: none;
     }
 
     .order-summary button {
@@ -92,6 +94,7 @@
       border-radius: 5px;
       font-weight: bold;
       cursor: pointer;
+      user-select: none;
     }
 
     .modal {
@@ -116,10 +119,27 @@
       margin-top: 0;
     }
     .modal-content ul {
-      padding-left: 20px;
+      padding-left: 0;
+      list-style: none;
     }
     .modal-content li {
       margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-content button {
+      padding: 4px 8px;
+      margin-left: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      background-color: #ddd;
+      transition: background-color 0.2s;
+    }
+    .modal-content button:hover {
+      background-color: #bbb;
     }
     .close-btn {
       margin-top: 10px;
@@ -128,6 +148,7 @@
       padding: 8px 12px;
       border-radius: 5px;
       cursor: pointer;
+      user-select: none;
     }
   </style>
 </head>
@@ -140,7 +161,7 @@
 
   <div class="order-summary">
     <div class="info" onclick="showCart()">已点 <span id="item-types">0</span> 样 / <span id="item-count">0</span> 份 / ￥<span id="item-total">0</span></div>
-    <button onclick="submitOrder()">提交订单</button>
+    <button onclick="submitOrder(event)">提交订单</button>
   </div>
 
   <div class="modal" id="cart-modal">
@@ -201,7 +222,6 @@
         order.push({ id, name, price, quantity: 1 });
       }
 
-      // 显示红圈数字
       const badge = document.getElementById('badge-' + id);
       badge.innerText = order.find(i => i.id === id).quantity;
       badge.style.display = 'inline-block';
@@ -229,7 +249,19 @@
       } else {
         order.forEach(item => {
           const li = document.createElement("li");
-          li.innerText = `${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}`;
+          li.style.display = "flex";
+          li.style.justifyContent = "space-between";
+          li.style.alignItems = "center";
+          li.style.marginBottom = "8px";
+
+          li.innerHTML = `
+            <span>${item.name} x${item.quantity} = ￥${(item.quantity * item.price).toFixed(2)}</span>
+            <span>
+              <button onclick="changeQuantity('${item.id}', -1)">-</button>
+              <button onclick="changeQuantity('${item.id}', 1)">+</button>
+            </span>
+          `;
+
           list.appendChild(li);
         });
       }
@@ -241,7 +273,31 @@
       document.getElementById("cart-modal").style.display = "none";
     }
 
-    function submitOrder() {
+    function changeQuantity(id, delta) {
+      const item = order.find(i => i.id === id);
+      if (!item) return;
+
+      item.quantity += delta;
+      if (item.quantity <= 0) {
+        const index = order.findIndex(i => i.id === id);
+        if (index > -1) {
+          order.splice(index, 1);
+        }
+        const badge = document.getElementById('badge-' + id);
+        badge.style.display = "none";
+        badge.innerText = "0";
+      } else {
+        const badge = document.getElementById('badge-' + id);
+        badge.innerText = item.quantity;
+      }
+
+      updateSummary();
+      showCart();
+    }
+
+    function submitOrder(e) {
+      e.stopPropagation(); // 防止触发order-summary点击事件打开购物车
+
       if (order.length === 0) {
         alert("您还没有选择菜品！");
         return;
@@ -253,7 +309,6 @@
       msg += `\n总价：￥${order.reduce((sum, i) => sum + i.price * i.quantity, 0).toFixed(2)}`;
       alert(msg);
 
-      // 重置
       order.length = 0;
       document.querySelectorAll(".badge").forEach(b => {
         b.innerText = "0";
