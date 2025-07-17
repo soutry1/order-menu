@@ -8,97 +8,98 @@
     body {
       font-family: sans-serif;
       margin: 0;
+      padding-bottom: 90px;
       background: #f9f9f9;
     }
     header {
-      background-color: #ff5722;
+      background-color: #ff6347;
       color: white;
-      padding: 1rem;
+      padding: 16px;
       text-align: center;
-      font-size: 1.5rem;
-      position: sticky;
-      top: 0;
+      font-size: 24px;
     }
     .menu {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1rem;
-      padding: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 16px;
     }
     .dish {
       background: white;
-      border-radius: 10px;
-      padding: 1rem;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       position: relative;
     }
     .dish img {
-      max-width: 100%;
+      width: 100%;
       height: 120px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     .dish button {
-      margin-top: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: #ff9800;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background-color: #28a745;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .footer {
+    .dish button:hover {
+      background-color: #218838;
+    }
+    .order-btn {
       position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: white;
-      padding: 0.8rem 1rem;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      right: 16px;
+      bottom: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 24px;
+      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      cursor: pointer;
     }
     .badge {
       position: absolute;
-      top: 6px;
+      top: 8px;
       right: 8px;
       background: red;
       color: white;
-      font-size: 0.7rem;
       padding: 2px 6px;
-      border-radius: 50%;
+      border-radius: 10px;
+      font-size: 12px;
     }
-    #orderModal {
+    .order-view {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: white;
-      width: 90%;
-      max-width: 400px;
-      padding: 1rem;
-      border-radius: 8px;
+      border-top: 2px solid #ccc;
+      max-height: 60%;
+      overflow-y: auto;
+      padding: 16px;
+      display: none;
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
     }
     .order-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 0.5rem 0;
-    }
-    .order-item span {
-      flex: 1;
-    }
-    .order-item .controls {
-      display: flex;
-      gap: 6px;
+      margin-bottom: 12px;
     }
     .order-item button {
       padding: 2px 8px;
+      margin: 0 4px;
+    }
+    .total {
+      font-weight: bold;
+      margin-top: 12px;
+      text-align: right;
     }
   </style>
 </head>
@@ -108,129 +109,111 @@
 
 <div class="menu" id="menu"></div>
 
-<div class="footer">
-  <div>合计：￥<span id="total">0</span></div>
-  <button onclick="showOrder()">订单（<span id="orderCount">0</span>）</button>
-</div>
+<button class="order-btn" onclick="toggleOrder()">订单（<span id="cartCount">0</span>）</button>
 
-<!-- 订单弹窗 -->
-<div id="orderModal">
-  <div class="modal-content">
-    <h3>已点菜品</h3>
-    <div id="orderList"></div>
-    <p>总价：￥<span id="modalTotal">0</span></p>
-    <button onclick="submitOrder()">提交订单</button>
-    <button onclick="hideOrder()">关闭</button>
-  </div>
+<div class="order-view" id="orderView">
+  <h3>我的订单</h3>
+  <div id="orderList"></div>
+  <div class="total" id="totalPrice">总计：￥0</div>
 </div>
 
 <script>
-  const menuData = [
-    { id: 1, name: "宫保鸡丁", price: 20 },
-    { id: 2, name: "鱼香肉丝", price: 18 },
-    { id: 3, name: "麻婆豆腐", price: 16 },
-    { id: 4, name: "红烧肉", price: 22 },
-    { id: 5, name: "青椒土豆丝", price: 12 },
-    { id: 6, name: "番茄炒蛋", price: 14 },
-  ];
+const menuData = [
+  { id: 1, name: "宫保鸡丁", price: 28 },
+  { id: 2, name: "鱼香肉丝", price: 26 },
+  { id: 3, name: "麻婆豆腐", price: 22 },
+  { id: 4, name: "红烧肉", price: 32 },
+  { id: 5, name: "青椒肉丝", price: 25 },
+  { id: 6, name: "番茄炒蛋", price: 20 },
+  { id: 7, name: "可乐鸡翅", price: 30 },
+  { id: 8, name: "香菇油菜", price: 18 },
+];
 
-  const order = {}; // 记录订单数据
+const cart = {};
 
-  const menuEl = document.getElementById('menu');
-  const totalEl = document.getElementById('total');
-  const orderCountEl = document.getElementById('orderCount');
-  const orderModal = document.getElementById('orderModal');
-  const orderList = document.getElementById('orderList');
-  const modalTotal = document.getElementById('modalTotal');
+function renderMenu() {
+  const menuEl = document.getElementById("menu");
+  menuEl.innerHTML = '';
+  menuData.forEach(item => {
+    const dish = document.createElement("div");
+    dish.className = "dish";
 
-  function renderMenu() {
-    menuData.forEach(item => {
-      const dishDiv = document.createElement('div');
-      dishDiv.className = 'dish';
-      dishDiv.dataset.id = item.id;
+    const imgSrc = item.id <= 4 ? `images/${item.id}.jpg` : `https://via.placeholder.com/300x200?text=${item.name}`;
 
-      const imagePath = item.id <= 4 ? `images/${item.id}.jpg` : `https://via.placeholder.com/300x200?text=${item.name}`;
+    dish.innerHTML = `
+      <span class="badge" id="badge-${item.id}" style="display:none">0</span>
+      <img src="${imgSrc}" alt="${item.name}">
+      <h3>${item.name}</h3>
+      <p>￥${item.price}</p>
+      <button onclick="addDish(${item.id})">点单</button>
+    `;
+    menuEl.appendChild(dish);
+  });
+}
 
-      dishDiv.innerHTML = `
-        <span class="badge" id="badge-${item.id}" style="display:none">0</span>
-        <img src="${imagePath}" alt="${item.name}">
-        <h3>${item.name}</h3>
-        <p>￥${item.price}</p>
-        <button onclick="addDish(${item.id})">点单</button>
-      `;
-      menuEl.appendChild(dishDiv);
-    });
+function addDish(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  updateBadge(id);
+  updateCartCount();
+}
+
+function changeQuantity(id, delta) {
+  if (!cart[id]) return;
+  cart[id] += delta;
+  if (cart[id] <= 0) delete cart[id];
+  updateOrderView();
+  updateBadge(id);
+  updateCartCount();
+}
+
+function updateBadge(id) {
+  const badge = document.getElementById(`badge-${id}`);
+  if (cart[id]) {
+    badge.textContent = cart[id];
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function updateCartCount() {
+  const count = Object.values(cart).reduce((a, b) => a + b, 0);
+  document.getElementById("cartCount").textContent = count;
+}
+
+function toggleOrder() {
+  const orderView = document.getElementById("orderView");
+  orderView.style.display = orderView.style.display === 'block' ? 'none' : 'block';
+  updateOrderView();
+}
+
+function updateOrderView() {
+  const orderList = document.getElementById("orderList");
+  const totalPriceEl = document.getElementById("totalPrice");
+  orderList.innerHTML = '';
+  let total = 0;
+
+  for (let id in cart) {
+    const item = menuData.find(d => d.id == id);
+    const qty = cart[id];
+    const subtotal = qty * item.price;
+    total += subtotal;
+
+    const div = document.createElement('div');
+    div.className = 'order-item';
+    div.innerHTML = `
+      <span>${item.name} × ${qty} = ￥${subtotal}</span>
+      <span>
+        <button onclick="changeQuantity(${id}, -1)">-</button>
+        <button onclick="changeQuantity(${id}, 1)">+</button>
+      </span>
+    `;
+    orderList.appendChild(div);
   }
 
-  function addDish(id) {
-    order[id] = (order[id] || 0) + 1;
-    updateView();
-  }
-
-  function changeQuantity(id, delta) {
-    if (!order[id]) return;
-    order[id] += delta;
-    if (order[id] <= 0) delete order[id];
-    updateView();
-  }
-
-  function updateView() {
-    let total = 0, count = 0;
-    menuData.forEach(item => {
-      const qty = order[item.id] || 0;
-      const badge = document.getElementById(`badge-${item.id}`);
-      if (qty > 0) {
-        badge.innerText = qty;
-        badge.style.display = 'inline-block';
-        total += item.price * qty;
-        count += qty;
-      } else {
-        badge.style.display = 'none';
-      }
-    });
-    totalEl.innerText = total;
-    orderCountEl.innerText = count;
-    updateOrderList();
-  }
-
-  function showOrder() {
-    orderModal.style.display = 'flex';
-    updateOrderList();
-  }
-
-  function hideOrder() {
-    orderModal.style.display = 'none';
-  }
-
-  function updateOrderList() {
-    orderList.innerHTML = '';
-    let total = 0;
-    Object.keys(order).forEach(id => {
-      const item = menuData.find(i => i.id == id);
-      const qty = order[id];
-      total += qty * item.price;
-      const div = document.createElement('div');
-      div.className = 'order-item';
-      div.innerHTML = `
-        <span>${item.name} × ${qty} - ￥${item.price * qty}</span>
-        <div class="controls">
-          <button onclick="changeQuantity(${id}, -1)">-</button>
-          <button onclick="changeQuantity(${id}, 1)">+</button>
-        </div>
-      `;
-      orderList.appendChild(div);
-    });
-    modalTotal.innerText = total;
-  }
-
-  function submitOrder() {
-    alert("订单已提交！");
-    for (let id in order) delete order[id];
-    updateView();
-    hideOrder();
-  }
-
-  renderMenu();
+  totalPriceEl.textContent = `总计：￥${total}`;
+}
+renderMenu();
 </script>
 
 </body>
